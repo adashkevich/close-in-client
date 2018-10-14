@@ -1,0 +1,42 @@
+<template>
+    <form class="list" id="my-form">
+        <ul>
+            <li>
+                <div class="item-content">
+                    <div class="item-inner">
+                        <div class="item-title">Business profile</div>
+                        <div class="item-after">
+                            <label class="toggle toggle-init">
+                                <input type="checkbox" name="toggle" value="business_profile"><i class="toggle-icon"></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="item-content">
+                    <div class="item-inner">
+                        <div @click="signout" class="item-title" style="color: #ff675f">Sign Out</div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </form>
+</template>
+
+<!--suppress JSAnnotator -->
+<script>
+
+    return {
+        data: function () {
+            return {};
+        },
+        methods: {
+            signout: function () {
+                service.auth.logOut(function () {
+                    app.views.current.router.navigate('/login-screen/');
+                });
+            }
+        }
+    };
+</script>

@@ -1,0 +1,61 @@
+<template>
+    <div class="map-tab-content">
+        <div id="google-map-wrapper"></div>
+    </div>
+</template>
+
+<!--suppress JSAnnotator -->
+<script>
+    var add_marker = new google.maps.Marker(), is_add_mode;
+
+    function addMode() {
+        console.log('addMode');
+        $$('#add-event-btn').hide();
+        $$('#accept-event-btn').show();
+        $$('#decline-event-btn').show();
+        is_add_mode = true;
+    }
+
+    function viewMode() {
+        $$('#add-event-btn').show();
+        $$('#accept-event-btn').hide();
+        $$('#decline-event-btn').hide();
+        add_marker && add_marker.setMap(null);
+        is_add_mode = false;
+    }
+
+    function newEvent() {
+        app.views.current.router.navigate('/events/new/', {
+            context: {lat: add_marker.getPosition().lat(), lng: add_marker.getPosition().lng()}
+        });
+    }
+
+    $$('.navbar').on('click', '#add-event-btn', addMode);
+    $$('.navbar').click('#accept-event-btn', newEvent);
+    $$('.navbar').click('#decline-event-btn', viewMode);
+
+    $$(document).once('tab:beforeremove', '#map-tab', function (e) {
+        $$('.navbar').off('click', '#add-event-btn', addMode);
+        $$('.navbar').off('click', '#accept-event-btn', newEvent);
+        $$('.navbar').off('click', '#decline-event-btn', viewMode);
+        $$('#google-map').appendTo(app.view.current.$el);
+    });
+
+    return {
+        data: function () {
+            return {};
+        },
+        on: {
+            tabMounted: function (newTabEl, tabRoute) {
+                $$('#google-map').appendTo($$('#google-map-wrapper'));
+                viewMode();
+                google.maps.event.addListener(app.google_map, 'click', function(event) {
+                    if(is_add_mode) {
+                        add_marker.setPosition(event.latLng);
+                        add_marker.setMap(app.google_map);
+                    }
+                });
+            }
+        }
+    };
+</script>

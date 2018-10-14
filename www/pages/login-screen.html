@@ -1,0 +1,178 @@
+<!-- component template -->
+<template>
+    <div class="login-screen">
+        <!-- Default view-page layout -->
+        <div class="view">
+            <div class="page">
+                <!-- Additional "tabbar" class -->
+                <div class="toolbar tabbar">
+                    <div class="toolbar-inner">
+                        <!-- Links have "tab-link" class instead of just "link" to switch tabs -->
+                        <a href="#tab-sing-in" class="tab-link tab-link-active">Sing In</a>
+                        <a href="#tab-sing-up" class="tab-link">Sign Up</a>
+                    </div>
+                </div>
+                <!-- Tabs -->
+                <div class="tabs">
+                    <!-- First tab, active -->
+                    <div class="login-screen-content page-content tab tab-active" id="tab-sing-in">
+                        <form id="sing-in-form">
+                            <div class="list no-hairlines-md">
+                                <ul>
+                                    <li class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title item-label">Country code</div>
+                                            <div class="item-input-wrap">
+                                                <select @change="validateSignIn" name="country_code" placeholder="Please choose...">
+                                                    <option value="+375">Belarus (+375)</option>
+                                                    <option value="+7">Russia (+7)</option>
+                                                    <option value="+380">Ukraine (+380)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title item-label">Phone</div>
+                                            <div class="item-input-wrap">
+                                                <input @change="validateSignIn" name="phone" type="number" placeholder="1234567">
+                                                <span class="input-clear-button"></span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title item-label">Password</div>
+                                            <div class="item-input-wrap">
+                                                <input @change="validateSignIn" name="password" type="password">
+                                                <span class="input-clear-button"></span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="list">
+                                <ul>
+                                    <li>
+                                        <button @click="signin" id="sing-in-btn" class="disabled button col">Sign In</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Second tab -->
+                    <div class="login-screen-content page-content tab" id="tab-sing-up">
+                        <form id="sing-up-form">
+                            <div class="list no-hairlines-md">
+                                <ul>
+                                    <li class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title item-label">Country code</div>
+                                            <div class="item-input-wrap">
+                                                <select @change="validateSignUp" name="country_code" placeholder="Please choose...">
+                                                    <option value="+375">Belarus (+375)</option>
+                                                    <option value="+7">Russia (+7)</option>
+                                                    <option value="+380">Ukraine (+380)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title item-label">Phone</div>
+                                            <div class="item-input-wrap">
+                                                <input @change="validateSignUp" name="phone" type="number" placeholder="1234567">
+                                                <span class="input-clear-button"></span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title item-label">Name</div>
+                                            <div class="item-input-wrap">
+                                                <input @change="validateSignUp" name="name" type="text" placeholder="John Doe">
+                                                <span class="input-clear-button"></span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="item-content item-input">
+                                        <div class="item-inner">
+                                            <div class="item-title item-label">Password</div>
+                                            <div class="item-input-wrap">
+                                                <input @change="validateSignUp" name="password" type="password">
+                                                <span class="input-clear-button"></span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="list">
+                                <ul>
+                                    <li>
+                                        <button @click="signup" id="sing-up-btn" class="disabled button col">Sign Up</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<!-- component styles -->
+<style>
+
+</style>
+<!-- rest of component data and methods -->
+<!--suppress JSAnnotator -->
+<script>
+
+    function validateSignIn() {
+        var formData = app.form.convertToData('#sing-in-form');
+        return formData.country_code && formData.password && validator.phone(formData.country_code , formData.phone);
+    }
+
+    function validateConfirmCode() {
+        if ($$('input[name="verification_code"]').val().length != 4) {
+            return false;
+        }
+        return true;
+    }
+
+    function collectFullData() {
+        return app.utils.extend({}, app.form.convertToData('#phone-number-form'),
+            app.form.convertToData('#confirmation-code-form'));
+    }
+
+    return {
+
+        methods: {
+            validateSignIn: function () {
+                if(validateSignIn()) {
+                    $$('#sing-in-btn').removeClass('disabled');
+                } else {
+                    $$('#sing-in-btn').addClass('disabled');
+                }
+            },
+            signin: function (e) {
+                e.preventDefault();
+                app.request.postJSON(app.cfg.endpoint + '/login', {user: app.form.convertToData('#sing-in-form')}, function (data, code, xmlHttpRequest) {
+                    service.auth.logIn(data, xmlHttpRequest, function () {
+                        app.loginScreen.close();
+                        service.init.finish('login');
+                    }, function () {
+                        //TODO show error msg
+                        console.log(e);
+                    });
+
+                }, function (e) {
+                    //TODO show error msg
+                    console.log(e);
+                });
+            }
+        }
+    };
+</script>

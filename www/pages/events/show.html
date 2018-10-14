@@ -1,0 +1,213 @@
+<template>
+    <div data-name="show-event" class="page">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link">
+                        <i class="icon icon-back"></i>
+                        <span class="ios-only">{{locale_str.back}}</span>
+                    </a>
+                </div>
+                <div class="title">{{locale_str.show_event_page_title}}</div>
+            </div>
+        </div>
+        <div class="page-content">
+            <form class="list no-hairlines-md" id="show-event-form">
+                <ul>
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">{{locale_str.title}}</div>
+                            <div class="item-input-wrap">
+                                <input type="text" name="title" readonly="readonly">
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">{{locale_str.event_category_title}}</div>
+                            <div class="item-input-wrap">
+                                <input type="text" name="category" readonly="readonly">
+                            </div>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Start date</div>
+                                <div class="item-input-wrap">
+                                    <input type="text" name="start_date" readonly="readonly"/>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">Start time</div>
+                                <div class="item-input-wrap">
+                                    <input name="start_time" type="text" placeholder="{{locale_str.event_start_time_placeholder}}" readonly="readonly"/>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">End date</div>
+                                <div class="item-input-wrap">
+                                    <input @change="change" type="text" name="end_date" readonly="readonly"/>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="item-content item-input">
+                            <div class="item-inner">
+                                <div class="item-title item-label">End time</div>
+                                <div class="item-input-wrap">
+                                    <input name="end_time" type="text" placeholder="{{locale_str.event_end_time_placeholder}}" readonly="readonly"/>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">{{locale_str.event_cost_title}}</div>
+                            <div class="item-input-wrap">
+                                <input type="number" step="0.01" min="0" name="cost" validate placeholder="{{locale_str.event_cost_placeholder}}" readonly="readonly">
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="item-content item-input">
+                        <div class="item-inner">
+                            <div class="item-title item-label">{{locale_str.event_capacity_title}}</div>
+                            <div class="item-input-wrap">
+                                <input type="number" min="0" name="capacity" placeholder="{{locale_str.event_capacity_placeholder}}" readonly="readonly">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="block">
+                    <div class="row">
+                        <button @click="startBooking" class="col button button-fill">I'll GO</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="sheet-modal booking-sheet">
+                <div class="toolbar">
+                    <div class="toolbar-inner">
+                        <div class="left"></div>
+                        <div class="right"><a class="link sheet-close" href="#">Close</a></div>
+                    </div>
+                </div>
+                <div class="sheet-modal-inner">
+
+                    <form class="list" id="new-booking-form">
+                        <ul>
+                            <input type="hidden" name="event_id" value="{{event.id}}">
+                            <li class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title">Participants:</div>
+                                    <div class="item-after">
+                                        <div class="stepper stepper-init stepper-small stepper-raised" data-value-el="#participant-count">
+                                            <div class="stepper-button-minus"></div>
+                                            <div class="stepper-input-wrap">
+                                                <input type="text" name="count" value="1" min="1" max="{{event.available_places}}" step="1" readonly>
+                                            </div>
+                                            <div class="stepper-button-plus"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="item-content">
+                                <div class="item-inner">
+                                    <button @click="book" class="col button button-fill">Book</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style>
+
+</style>
+
+<!--suppress JSAnnotator -->
+<script>
+    function adaptFormData(data) {
+        if(data.start_time) {
+            data.start_date = data.start_time.substr(0, 10);
+            data.start_time = data.start_time.substr(11, 5);
+            if(data.start_time === '00:00') {
+                data.start_time = null;
+            }
+        }
+        if(data.end_time) {
+            data.end_time = data.end_time.substr(0, 10);
+            data.end_time = data.end_time.substr(11, 5);
+            if(data.end_time === '00:00') {
+                data.end_time = null;
+            }
+        }
+        return data;
+    }
+
+    function bookingFormData() {
+        var formData = app.form.convertToData('#new-booking-form');
+
+        return {
+            event_id: formData.event_id,
+            booking: {
+                count: formData.count
+            }
+        }
+    }
+
+    return {
+        data: function () {
+            console.log(this.$route);
+            return app.utils.extend({}, app.data, {
+                event: service.events.get(this.$route.params.event_id)
+            }) ;
+        },
+
+        methods: {
+            startBooking: function (e) {
+                e.preventDefault();
+                app.sheet.open('.booking-sheet');
+            },
+            
+            book: function (e) {
+                e.preventDefault();
+                app.request.postJSON(app.cfg.endpoint + '/bookings', bookingFormData(), function (data, code, xmlHttpRequest) {
+                    service.events.clear();
+                    app.views.current.router.navigate('/main/', {
+                        //TODO add context lat & lnt
+                    });
+                }, function (e) {
+                    //TODO show error msg
+                    console.log(e);
+                });
+            }
+        },
+        on: {
+            pageInit: function () {
+                var formData = service.events.get(this.$route.params.event_id);
+                app.form.fillFromData('#show-event-form', adaptFormData(formData));
+            }
+        }
+    };
+</script>

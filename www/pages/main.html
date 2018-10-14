@@ -1,0 +1,54 @@
+<template>
+    <div data-name="debt-show" class="page">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="title">CloseIn</div>
+                <div class="right">
+                    <a href="#" class="link" id="add-event-btn" style="display: none">
+                        <i class="icon f7-icons">add</i>
+                    </a>
+                    <a href="#" class="link" id="decline-event-btn" style="display: none">
+                        <i class="icon f7-icons">close</i>
+                    </a>
+                    <a href="#" class="link" id="accept-event-btn" style="display: none">
+                        <i class="icon f7-icons">check</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Additional "tabbar-labels" class -->
+        <div class="toolbar tabbar-labels toolbar-bottom-md">
+            <div class="toolbar-inner">
+                <a href="./" class="tab-link tab-link-active" data-route-tab-id="map-tab">
+                    <i class="icon f7-icons">search</i>
+                </a>
+                <a href="./events/" class="tab-link" data-route-tab-id="events-tab">
+                    <i class="icon f7-icons">calendar</i>
+                </a>
+                <!--<a href="./notification/" class="tab-link" data-route-tab-id="notification-tab">
+                    <i class="icon f7-icons">bell<span class="badge color-red">5</span></i>
+                </a>-->
+                <a href="./menu/" class="tab-link" data-route-tab-id="menu-tab">
+                    <i class="icon f7-icons">bars</i>
+                </a>
+            </div>
+        </div>
+
+        <div class="tabs tabs-routable">
+            <div class="page-content tab" id="map-tab"></div>
+            <div class="page-content tab" id="events-tab"></div>
+            <div class="page-content tab" id="notification-tab"></div>
+            <div class="page-content tab" id="menu-tab"></div>
+        </div>
+    </div>
+</template>
+
+<!--suppress JSAnnotator -->
+<script>
+
+    return {
+        data: function () {
+            return {};
+        }
+    };
+</script>

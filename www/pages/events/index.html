@@ -1,0 +1,85 @@
+<template>
+    <div>
+        <div class="subnavbar">
+            <div class="subnavbar-inner">
+                <!-- Subnavbar content, for example tabs buttons -->
+                <div class="segmented">
+                    <a href="#participate-tab" @click="openParticipateTab" class="button">Participate</a>
+                    <a href="#organize-tab" @click="openOrganizeTab" class="button">Organize</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs" style="padding-top: 48px">
+            <div class="tab" id="participate-tab">
+                <!--<div class="block-title">October 14</div>-->
+                <div class="list media-list">
+                    <ul></ul>
+                </div>
+            </div>
+            <div class="tab" id="organize-tab">
+                <div class="list media-list">
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</template>
+
+<!--suppress JSAnnotator -->
+<script>
+    var eventTemplate = Template7.compile($$('#participate-event-template').html());
+
+    function adaptEvent(data) {
+        if(data.start_time) {
+            data.start_time = data.start_time.substr(11, 5);
+            if(data.start_time === '00:00') {
+                //TODO replace with localized str
+                data.start_time = 'Whole day';
+            }
+        } else {
+            data.start_time = 'Whole day';
+        }
+
+        data.address = '1657 Riverside Drive';
+        data.description = 'Собираемся в этом зале каждую неделю. Рамер площадки 40x17м. Играем по 5 минут, либо до 2х голов. Душ отсутствует.';
+
+        return data;
+    }
+    return {
+        data: function () {
+            return {};
+        },
+        on: {
+            tabMounted: function (newTabEl, tabRoute) {
+                $$('#participate-tab').on('tab:show', function() {
+                    service.events.participateList(function (events) {
+                        events.forEach(function (event) {
+                            $$('#participate-tab ul').empty().append(eventTemplate(adaptEvent(event)));
+                        })
+                    });
+                });
+
+                $$('#organize-tab').on('tab:show', function() {
+                    service.events.organizeList(function (events) {
+                        events.forEach(function (event) {
+                            $$('#participate-tab ul').empty().append(eventTemplate(adaptEvent(event)));
+                        })
+                    });
+                });
+
+                app.tab.show('#participate-tab', true);
+            }
+        },
+        methods: {
+            openParticipateTab: function () {
+                app.tab.show('#participate-tab', true);
+            },
+
+            openOrganizeTab: function () {
+                app.tab.show('#organize-tab', true);
+            }
+        }
+    };
+</script>
