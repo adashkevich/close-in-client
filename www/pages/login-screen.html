@@ -135,6 +135,11 @@
         return formData.country_code && formData.password && validator.phone(formData.country_code , formData.phone);
     }
 
+    function validateSignUp() {
+        var formData = app.form.convertToData('#sing-up-form');
+        return formData.country_code && formData.password && formData.name && validator.phone(formData.country_code , formData.phone);
+    }
+
     function validateConfirmCode() {
         if ($$('input[name="verification_code"]').val().length != 4) {
             return false;
@@ -148,7 +153,6 @@
     }
 
     return {
-
         methods: {
             validateSignIn: function () {
                 if(validateSignIn()) {
@@ -157,18 +161,30 @@
                     $$('#sing-in-btn').addClass('disabled');
                 }
             },
+            validateSignUp: function () {
+                console.log('validateSignUp ' + validateSignUp());
+                if(validateSignUp()) {
+                    $$('#sing-up-btn').removeClass('disabled');
+                } else {
+                    $$('#sing-up-btn').addClass('disabled');
+                }
+            },
             signin: function (e) {
                 e.preventDefault();
-                app.request.postJSON(app.cfg.endpoint + '/login', {user: app.form.convertToData('#sing-in-form')}, function (data, code, xmlHttpRequest) {
-                    service.auth.logIn(data, xmlHttpRequest, function () {
-                        app.loginScreen.close();
-                        service.init.finish('login');
-                    }, function () {
-                        //TODO show error msg
-                        console.log(e);
-                    });
-
-                }, function (e) {
+                service.auth.logIn({user: app.form.convertToData('#sing-in-form')}, function() {
+                    app.loginScreen.close();
+                    service.init.finish('login');
+                }, function(e) {
+                    //TODO show error msg
+                    console.log(e);
+                });
+            },
+            signup: function (e) {
+                e.preventDefault();
+                service.auth.registration({user: app.form.convertToData('#sing-up-form')}, function() {
+                    app.loginScreen.close();
+                    service.init.finish('login');
+                }, function(e) {
                     //TODO show error msg
                     console.log(e);
                 });

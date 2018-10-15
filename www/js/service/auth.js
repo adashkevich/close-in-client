@@ -23,20 +23,33 @@ service.auth = (function () {
             });
         },
 
-        logIn: function (data, xmlHttpRequest, success, error) {
-            var auth_token = xmlHttpRequest.getResponseHeader('Authorization');
+        logIn: function (data, success, error) {
+            app.request.postJSON(app.cfg.endpoint + '/login', data, function (data, code, xmlHttpRequest) {
+                var auth_token = xmlHttpRequest.getResponseHeader('Authorization');
 
-            service.user.create(data, function (user) {
-                db.transaction(function (tx) {
-                    tx.executeSql('INSERT INTO auth (user_id, auth_token) VALUES (?, ?)', [data.id, auth_token], function (tx, results) {
-                        app.data.current_user = user;
+                service.user.create(data, function (user) {
+                    db.transaction(function (tx) {
+                        tx.executeSql('INSERT INTO auth (user_id, auth_token) VALUES (?, ?)', [data.id, auth_token], function (tx, results) {
+                            app.data.current_user = user;
 
-                        Framework7.request.setup({headers: {'Authorization': auth_token}});
-                        success && success(app.data.current_user);
-                    }, function (tx, e) {
-                        error && error(e);
+                            Framework7.request.setup({headers: {'Authorization': auth_token}});
+                            success && success(app.data.current_user);
+                        }, function (tx, e) {
+                            error && error(e);
+                        });
                     });
                 });
+
+            }, function (e) {
+                error && error(e);
+            });
+        },
+
+        registration: function (data, success, error) {
+            app.request.postJSON(app.cfg.endpoint + '/signup', data, function (response) {
+                service.auth.logIn(data, success, error);
+            }, function (e) {
+                error && error(e);
             });
         },
 
@@ -44,14 +57,17 @@ service.auth = (function () {
             Framework7.request({
                 url: app.cfg.endpoint + '/logout',
                 method: 'DELETE',
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
                 success: function () {
-                    success && success();
+
+                    db.transaction(function (tx) {
+                        tx.executeSql('DELETE FROM auth', [], function (tx, results) {
+                            success && success();
+                        }, function (tx, e) {
+                            error && error(e);
+                        });
+                    });
                 },
                 error: function (e) {
-                    //TODO show error msg
-                    console.log(e);
                     error && error(e)
                 }
             });
