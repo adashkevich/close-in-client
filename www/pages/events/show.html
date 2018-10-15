@@ -95,11 +95,19 @@
                     </li>
                 </ul>
 
+                {{#if event.booking}}
                 <div class="block">
                     <div class="row">
-                        <button @click="startBooking" class="col button button-fill">I'll GO</button>
+                        <button @click="cancel" class="col button button-fill">Cancel booking</button>
                     </div>
                 </div>
+                {{else}}
+                <div class="block">
+                    <div class="row">
+                        <button @click="startBooking" class="col button button-fill">I'll go</button>
+                    </div>
+                </div>
+                {{/if}}
             </form>
 
             <div class="sheet-modal booking-sheet">
@@ -110,7 +118,6 @@
                     </div>
                 </div>
                 <div class="sheet-modal-inner">
-
                     <form class="list" id="new-booking-form">
                         <ul>
                             <input type="hidden" name="event_id" value="{{event.id}}">
@@ -201,6 +208,9 @@
                     //TODO show error msg
                     console.log(e);
                 });
+            },
+            cancel: function () {
+                e.preventDefault();
             }
         },
         on: {

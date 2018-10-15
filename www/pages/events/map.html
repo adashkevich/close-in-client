@@ -41,12 +41,17 @@
         $$('#google-map').appendTo(app.view.current.$el);
     });
 
+    $$(document).once('page:beforeout', '.page[data-name="main"]', function (e) {
+        $$('#google-map').appendTo(app.view.current.$el);
+    });
+
     return {
         data: function () {
             return {};
         },
         on: {
             tabMounted: function (newTabEl, tabRoute) {
+                console.log('tabMounted');
                 $$('#google-map').appendTo($$('#google-map-wrapper'));
                 viewMode();
                 google.maps.event.addListener(app.google_map, 'click', function(event) {

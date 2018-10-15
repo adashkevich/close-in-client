@@ -1,5 +1,5 @@
 service.events = (function () {
-    var events, participate, organize, area, bookings = {};
+    var events = [], participate, organize, area, bookings = {};
 
     function formatRange(area) {
         return 'ST_MakeEnvelope({left},{top},{right},{bottom})'
@@ -17,6 +17,7 @@ service.events = (function () {
     }
 
     function mergeEvents(data) {
+        //TODO implement update of events
         data.forEach(function (event) {
            if(!service.events.get(event.id)) {
                events.push(event);
@@ -97,7 +98,8 @@ service.events = (function () {
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (data) {
-                    success && success(bookings = adoptBookings(data));
+                    bookings = adoptBookings(data)
+                    success && success(bookings);
                 },
                 error: function (e) {
                     //TODO show error msg
