@@ -52,11 +52,7 @@ var app = new Framework7({
             componentUrl: './pages/events/show.html'
         },
         {
-            path: '/events/participate/:event_id/',
-            componentUrl: './pages/events/show.html'
-        },
-        {
-            path: '/events/organize/:event_id/',
+            path: '/events/edit/:event_id/',
             componentUrl: './pages/events/edit.html'
         },
     ],

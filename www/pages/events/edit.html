@@ -9,9 +9,9 @@
                         <span class="ios-only">{{locale_str.back}}</span>
                     </a>
                 </div>
-                <div class="title">{{locale_str.new_event_page_title}}</div>
+                <div class="title">{{locale_str.edit_event_page_title}}</div>
                 <div class="right">
-                    <a @click="create" id="new-event-submit" href="#" class="link link-disabled">
+                    <a @click="save" id="edit-event-submit" href="#" class="link link-disabled">
                         {{#if device.android}}
                         <i class="f7-icons">check</i>
                         {{/if}}
@@ -21,8 +21,7 @@
             </div>
         </div>
         <div class="page-content">
-            <form class="list no-hairlines-md" id="new-event-form">
-                <input type="hidden" name="location" value="POINT({{$route.context.lat}} {{$route.context.lng}})">
+            <form class="list no-hairlines-md" id="edit-event-form">
                 <ul>
                     <li class="item-content item-input">
                         <div class="item-inner">
@@ -61,7 +60,7 @@
                             <div class="item-inner">
                                 <div class="item-title item-label">Start date</div>
                                 <div class="item-input-wrap">
-                                    <input @change="startDateChange" type="text" name="start_date" placeholder="{{locale_str.event_start_date_placeholder}}" readonly="readonly" id="start-date-picker"/>
+                                    <input @change="change" type="text" name="start_date" placeholder="{{locale_str.event_start_date_placeholder}}" readonly="readonly" id="start-date-picker"/>
                                 </div>
                             </div>
                         </div>
@@ -121,8 +120,12 @@
                             </div>
                         </div>
                     </li>
-
                 </ul>
+                <div class="block">
+                    <div class="row">
+                        <button @click="cancel" class="col button button-fill">Cancel event</button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -137,9 +140,9 @@
     function validate() {
         var formData = app.form.convertToData('#new-event-form');
         if(formData.title && formData.category && formData.start_date && formData.end_date) {
-            $$('#new-event-submit').removeClass('link-disabled');
+            $$('#event-event-submit').removeClass('link-disabled');
         } else {
-            $$('#new-event-submit').addClass('link-disabled');
+            $$('#event-event-submit').addClass('link-disabled');
         }
     }
 
@@ -151,17 +154,36 @@
         delete formData.start_date;
         formData.end_time = formData.end_date + 'T' + formData.end_time.replace(' ', ':');
         delete formData.end_date;
-//        '2018-10-07T11:57:51'
         return {event: formData};
+    }
+
+    function adaptFormData(data) {
+        if(data.start_time) {
+            data.start_date = data.start_time.substr(0, 10);
+            data.start_time = data.start_time.substr(11, 5).replace(':', ' ');
+            if(data.start_time === '00:00') {
+                data.start_time = null;
+            }
+        }
+        if(data.end_time) {
+            data.end_date = data.end_time.substr(0, 10);
+            data.end_time = data.end_time.substr(11, 5).replace(':', ' ');
+            if(data.end_time === '00:00') {
+                data.end_time = null;
+            }
+        }
+        return data;
     }
 
     return {
         data: function () {
-            return app.data;
+            return app.utils.extend({}, app.data, {
+                event: service.events.get(this.$route.params.event_id)
+            }) ;
         },
         methods: {
-            create: function () {
-                if(!$$('#new-event-submit').hasClass('link-disabled')) {
+            save: function () {
+                if(!$$('#event-event-submit').hasClass('link-disabled')) {
                     app.request.postJSON(app.cfg.endpoint + '/events', formData(), function (data, code, xmlHttpRequest) {
                         app.views.current.router.navigate('/main/', {
                             //TODO add context lat & lnt
@@ -175,12 +197,9 @@
             change: function () {
                 validate();
             },
-            startDateChange: function () {
-                if(!$$('#end-date-picker').val()) {
-                    $$('#end-date-picker').val($$('#start-date-picker').val())
-                }
-                validate();
-            }
+            cancel: function () {
+
+            },
         },
         on: {
             pageInit: function () {
@@ -221,6 +240,9 @@
                         },
                     ]
                 });
+
+                var formData = service.events.get(this.$route.params.event_id);
+                app.form.fillFromData('#edit-event-form', adaptFormData(formData));
             }
         }
     };

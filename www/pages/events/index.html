@@ -29,7 +29,8 @@
 
 <!--suppress JSAnnotator -->
 <script>
-    var eventTemplate = Template7.compile($$('#participate-event-template').html());
+    var showEventTpl = Template7.compile($$('#participate-event-template').html()),
+        editEventTpl = Template7.compile($$('#organize-event-template').html());
 
     function adaptEvent(data) {
         if(data.start_time) {
@@ -56,7 +57,7 @@
                 $$('#participate-tab').on('tab:show', function() {
                     service.events.participateList(function (events) {
                         events.forEach(function (event) {
-                            $$('#participate-tab ul').empty().append(eventTemplate(adaptEvent(event)));
+                            $$('#participate-tab ul').empty().append(showEventTpl(adaptEvent(event)));
                         })
                     });
                 });
@@ -64,7 +65,7 @@
                 $$('#organize-tab').on('tab:show', function() {
                     service.events.organizeList(function (events) {
                         events.forEach(function (event) {
-                            $$('#participate-tab ul').empty().append(eventTemplate(adaptEvent(event)));
+                            $$('#organize-tab ul').empty().append(editEventTpl(adaptEvent(event)));
                         })
                     });
                 });

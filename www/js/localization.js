@@ -18,7 +18,7 @@ var locale_strings = {
         event_start_date_placeholder: 'Select date',
         event_end_date_placeholder: 'Select date',
 
-
+        edit_event_page_title: 'Edit Event',
         show_event_page_title: 'Show Event',
         new_event_page_title: 'New Event',
         event_category_title: 'Category',
